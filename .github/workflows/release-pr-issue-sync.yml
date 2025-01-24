@@ -9,9 +9,10 @@ permissions:
 
 jobs:
   create-issue:
-    if: startsWith(github.event.pull_request.title, 'chore(main): release root')
+    if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
     runs-on: ubuntu-latest
     steps:
+      - run: echo "The head of this PR starts with 'releases/'"
       - name: Create Issue
         uses: actions-ecosystem/action-create-issue@v1
         env:
