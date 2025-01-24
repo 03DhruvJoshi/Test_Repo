@@ -15,8 +15,7 @@ jobs:
       - run: echo "The head of this PR starts with 'releases/'"
       - name: Create Issue
         uses: actions-ecosystem/action-create-issue@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
+          github_token: ${{ secrets.TOKEN }}
           title: "New issue for PR: ${{ github.ref }}"
           body: "This issue is automatically created for the following release pull request. Please review the changes in the release."
