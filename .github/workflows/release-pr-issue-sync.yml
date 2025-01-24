@@ -1,0 +1,21 @@
+name: 'Create Issue on Release PR'
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  create-issue:
+    if: startsWith(github.event.pull_request.title, 'chore(main): release root')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue
+        uses: actions-ecosystem/action-create-issue@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          title: "New issue for PR: ${{ github.ref }}"
+          body: "This issue is automatically created for the following release pull request. Please review the changes in the release."
