@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "The head of this PR starts with 'releases/'"
-      - uses: actions/checkout@v4
       - name: Create Issue
         uses: actions-ecosystem/action-create-issue@v1
         env:
