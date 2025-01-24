@@ -1,4 +1,4 @@
-name: 'Create Issue on Release PR'
+name: "Create Issue on Release PR"
 
 on:
   pull_request:
@@ -16,6 +16,6 @@ jobs:
       - name: Create Issue
         uses: actions-ecosystem/action-create-issue@v1
         with:
-          github_token: ${{ secrets.TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           title: "New issue for PR: ${{ github.ref }}"
           body: "This issue is automatically created for the following release pull request. Please review the changes in the release."
