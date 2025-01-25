@@ -23,4 +23,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr edit ${{ github.event.pull_request.number }} --b "Fixes ${{ github.event.issue.number }} $ISSUE_URL"
+          gh pr edit ${{ github.event.pull_request.number }} --body "Fixes ${{ github.event.issue.number }} $ISSUE_URL"
