@@ -2,16 +2,22 @@ name: Create Issue from Pull Request
 
 on:
   pull_request:
-    types: [opened, edited]
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
-  create-issue:
+  create_issue:
+    if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Create Issue
-        uses: actions/create-issue@v1
+      - name: Create issue from pull request
+        run: |
+          new_issue_url=$(gh issue create \
+            --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number}}" \
+            --body "Issue created from pull request ${{ github.event.pull_request.html_url }}" \)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          title: "New Issue from Pull Request: ${{ github.event.pull_request.number }}"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
