@@ -15,6 +15,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh issue create \
-            --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number }}" \
-            --body "Issue created from pull request ${{ github.event.pull_request.html_url }}"
+          ISSUE_URL=$(gh issue create \
+            --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number }}")
+          echo "ISSUE_URL=$ISSUE_URL"
+      - name: Link pull request to issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --add-link $ISSUE_URL
