@@ -23,4 +23,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr edit ${{ github.event.pull_request.number }} --body "Fixes ${{ github.event.issue.number }} $ISSUE_URL"
+          ISSUE_NUMBER=$(echo $ISSUE_URL | grep -oP '\d+$')
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "release-please" --body "$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')\n\nFixes Issue #$ISSUE_NUMBER: $ISSUE_URL"
