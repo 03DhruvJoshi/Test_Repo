@@ -1,30 +1,17 @@
-name: Create Issue on Merge
+name: Create Issue from Pull Request
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, edited]
 
 jobs:
-  create_issue:
-    if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
+  create-issue:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Branch Name and Base
-        id: check_branch
-        run: |
-          echo "PR_BASE_REF=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV  
-          echo "PR_HEAD_REF=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
-
+      - uses: actions/checkout@v3
       - name: Create Issue
-        uses: peter-evans/create-issue-from-file@v5.0.1
+        uses: actions/create-issue@v1
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          title: "New issue for release PR: ${{ github.event.pull_request.number }}"
-
-      - name: Link Issue to Pull Request
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        run: |
-          ISSUE_NUMBER=$(gh issue list --state open --limit 1 --json number --jq '.[0].number')  
-          gh pr edit ${{ github.event.pull_request.number }} --add-link "https://github.com/${{ github.repository }}/issues/${ISSUE_NUMBER}"
+          title: "New Issue from Pull Request: ${{ github.event.pull_request.number }}"
