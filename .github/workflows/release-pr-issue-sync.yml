@@ -17,11 +17,14 @@ jobs:
 
       - name: Create Issue
         uses: peter-evans/create-issue-from-file@v5.0.1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
           title: "New issue for release PR: ${{ github.event.pull_request.number }}"
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Link Issue to Pull Request
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: |
           ISSUE_NUMBER=$(gh issue list --state open --limit 1 --json number --jq '.[0].number')  
           gh pr edit ${{ github.event.pull_request.number }} --add-link "https://github.com/${{ github.repository }}/issues/${ISSUE_NUMBER}"
