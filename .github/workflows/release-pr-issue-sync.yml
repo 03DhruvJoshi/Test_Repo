@@ -1,21 +1,31 @@
-name: "Create Issue on Release PR"
+name: Create Issue on Merge
 
 on:
   pull_request:
-    types: [opened]
-
-permissions:
-  pull-requests: write
+    types: [closed]
 
 jobs:
-  create-issue:
-    if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
+  create_issue_on_merge:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - run: echo "The head of this PR starts with 'releases/'"
+      - name: Check Branch Name and Base
+        id: check_branch
+        run: |
+          echo "PR_BASE_REF=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV  
+          echo "PR_HEAD_REF=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+
       - name: Create Issue
-        uses: actions-ecosystem/action-create-issue@v1
+        if: env.PR_BASE_REF == 'main' && startsWith(env.PR_HEAD_REF, 'release-please--branches--main--components--root')
+        uses: peter-evans/create-issue-from-file@v5.0.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: "New issue for PR: ${{ github.ref }}"
-          body: "This issue is automatically created for the following release pull request. Please review the changes in the release."
+          title: "New issue for release PR: ${{ github.event.pull_request.number }}"
+          content: |
+            - Pull Request: [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }})  
+            - Merged by: @${{ github.event.pull_request.merged_by.login }}
+
+      - name: Link Issue to Pull Request
+        if: env.PR_BASE_REF == 'main' && startsWith(env.PR_HEAD_REF, 'release-please--branches--main--components--root')
+        run: |
+          ISSUE_NUMBER=$(gh issue list --state open --limit 1 --json number --jq '.[0].number')  
+          gh pr edit ${{ github.event.pull_request.number }} --add-link "https://github.com/${{ github.repository }}/issues/${ISSUE_NUMBER}"
