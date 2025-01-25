@@ -4,20 +4,21 @@ on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
 
-permissions:
-  issues: write
-  pull-requests: write
-
 jobs:
   create_issue:
-    if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
     runs-on: ubuntu-latest
     steps:
-      - name: Create issue from pull request
-        run: |
-          gh issue create \
-            --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number}}" \
-            --body "Issue created from pull request ${{ github.event.pull_request.html_url }}"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up GitHub CLI
+        uses: actions/setup-gh-cli@v1
+
+      - name: Create issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+          gh issue create \
+            --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number }}" \
+            --body "Issue created from pull request ${{ github.event.pull_request.html_url }}"
