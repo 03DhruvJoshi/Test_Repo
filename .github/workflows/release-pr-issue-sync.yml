@@ -16,16 +16,12 @@ jobs:
           echo "PR_HEAD_REF=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
 
       - name: Create Issue
-        if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
         uses: peter-evans/create-issue-from-file@v5.0.1
         with:
           title: "New issue for release PR: ${{ github.event.pull_request.number }}"
-          content: |
-            - Pull Request: [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }})  
-            - Merged by: @${{ github.event.pull_request.merged_by.login }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Link Issue to Pull Request
-        if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
         run: |
           ISSUE_NUMBER=$(gh issue list --state open --limit 1 --json number --jq '.[0].number')  
           gh pr edit ${{ github.event.pull_request.number }} --add-link "https://github.com/${{ github.repository }}/issues/${ISSUE_NUMBER}"
