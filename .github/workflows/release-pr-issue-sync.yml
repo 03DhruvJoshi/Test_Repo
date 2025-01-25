@@ -15,9 +15,9 @@ jobs:
     steps:
       - name: Create issue from pull request
         run: |
-          new_issue_url=$(gh issue create \
+          gh issue create \
             --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number}}" \
-            --body "Issue created from pull request ${{ github.event.pull_request.html_url }}" \)
+            --body "Issue created from pull request ${{ github.event.pull_request.html_url }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
