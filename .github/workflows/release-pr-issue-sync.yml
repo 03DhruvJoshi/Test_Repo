@@ -17,15 +17,17 @@ jobs:
         run: |
           ISSUE_URL=$(gh issue create \
             --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number }}" \
-            --body "Fixes #${{ github.event.issue.number }}")
+            --body "AB#1787181")
           echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
       - name: Extract issue number
         id: extract_issue_number
         run: |
-          ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')  
+          ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')  
           echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
+          echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
       - name: Link pull request to issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}"
+          gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }} \n $ISSUE_BODY"
