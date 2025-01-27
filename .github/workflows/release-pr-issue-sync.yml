@@ -18,10 +18,9 @@ jobs:
           ISSUE_URL=$(gh issue create \
             --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number }}" )
           echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
-      - name: Extract issue number
+      - name: Extract issue number and body
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: extract_issue_number and body
         run: |
           ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
           ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')  
