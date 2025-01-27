@@ -22,13 +22,13 @@ jobs:
       - name: Extract issue number
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: extract_issue_number
+        id: extract_issue_number and body
         run: |
           ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
           ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')  
           echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
-      - name: Link pull request to issue
+      - name: Link issue to a release PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
