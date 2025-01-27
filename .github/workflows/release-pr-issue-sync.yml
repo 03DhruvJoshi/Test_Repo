@@ -17,7 +17,7 @@ jobs:
         run: |
           ISSUE_URL=$(gh issue create \
             --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number }}" \ 
-            --body "")
+            --body "AB#1787181")
           echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
       - name: Extract issue number and body
         env:
