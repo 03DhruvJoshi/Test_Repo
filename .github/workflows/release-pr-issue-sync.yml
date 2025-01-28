@@ -1,20 +1,11 @@
 name: Create Issue from Pull Request
 
 on:
+  push:
+    branches: ["main"]
   pull_request:
+    branches: ["main"]
     types: [opened, edited, reopened]
-  issues:
-    types:
-      - opened
-      - edited
-      - deleted
-      - closed
-      - reopened
-      - labeled
-      - unlabeled
-      - assigned
-  issue_comment:
-    types: [created, edited, deleted]
 
 jobs:
   create_issue:
@@ -59,11 +50,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUMBER=${{ env.ISSUE_NUMBER }}
-          CURRENT_ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
-          if [ -f previous_issue_body.txt ]; then
-            PREVIOUS_ISSUE_BODY=$(cat previous_issue_body.txt)
-          fi
+          PREVIOUS_ISSUE_BODY=$(echo ${{ github.event.pull_request.number }} | grep -oE '#[0-9]+' | grep -oE '[0-9]+')
+          CURRENT_ISSUE_BODY=$(gh issue view ${{ env.ISSUE_NUMBER }} --json body --jq '.body')
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
             echo "Issue body has changed, updating PR..." 
             gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n$CURRENT_ISSUE_BODY" 
