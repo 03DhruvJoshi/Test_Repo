@@ -64,7 +64,7 @@ jobs:
 
   sync_issue_body:
     runs-on: ubuntu-latest
-    if: startsWith(github.head_ref, 'release-please--branches--main--components--root') && github.event_name == 'issue_comment' || github.event_name == 'issues' && github.event.action == 'edited'
+    if: github.event_name == 'issues' && github.event.action == 'edited'
     needs: create_issue
     steps:
       - name: Checkout repository
