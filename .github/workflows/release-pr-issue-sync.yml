@@ -56,7 +56,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n${{ env.ISSUE_BODY }}"
+          gh pr edit ${{ github.event.pull_request.number }} --body "${{ env.ISSUE_BODY }}"
 
   sync_issue_body:
     if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
@@ -76,10 +76,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PREVIOUS_ISSUE_BODY=${{ needs.create_issue.outputs.issue_body }}
-          CURRENT_ISSUE_BODY=$(gh issue view $issue_number --json body --jq '.body')
+          CURRENT_ISSUE_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
+          echo "CURRENT_ISSUE_BODY=$CURRENT_ISSUE_BODY" >> $GITHUB_ENV
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
             echo "Issue body has changed, updating PR..."
-            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"
+            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ needs.create_issue.outputs.issue_number }}\n$CURRENT_ISSUE_BODY"
           else 
             echo "Issue body has not changed, no action required."
           fi
