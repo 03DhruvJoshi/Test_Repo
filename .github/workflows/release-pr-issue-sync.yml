@@ -79,7 +79,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_BODY=$(gh issue view $issue_number --json body --jq '.body')
+          ISSUE_BODY=$(gh issue view ${{ needs.create_issue.outputs.issue_number }} --json body --jq '.body')
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
 
       - name: Check changes to issue body
