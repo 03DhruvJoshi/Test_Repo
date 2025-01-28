@@ -51,7 +51,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUMBER=${{ steps.extract_issue_number_and_body.outputs.ISSUE_NUMBER }}  
+          ISSUE_NUMBER=${{ env.ISSUE_NUMBER }}  
           CURRENT_ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')  
             
           # Store previous issue body if exists  
