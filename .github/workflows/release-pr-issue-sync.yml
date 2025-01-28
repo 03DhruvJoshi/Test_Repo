@@ -7,7 +7,7 @@ on:
     types: [edited]
   issue_comment:
     types: [created, edited]
- 
+    
 jobs:
   create_issue:
     if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'release-please--branches--main--components--root')
