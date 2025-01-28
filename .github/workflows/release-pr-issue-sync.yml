@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
+
       - name: Create issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -23,20 +24,28 @@ jobs:
             --title "Release-please issue for Pull Request #${{ github.event.pull_request.number }}" \
             --body "Release v.1.15.0")
           echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
+
       - name: Extract issue number
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: extract_issue_number_and_body
+        id: extract_issue_number
         run: |
           ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
           echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
+
+      - name: Extract issue body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
+
       - name: Store issue body
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "${{ env.ISSUE_BODY }}" > previous_issue_body.txt
+
       - name: Link issue to a release PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,18 +55,24 @@ jobs:
   sync_issue_body:
     if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
     runs-on: ubuntu-latest
+    needs: create_issue
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
       - name: Extract Issue number
         run: |
-          issue_number=${{ github.event.issue.number }}
+          issue_number=${{ needs.create_issue.outputs.extract_issue_number.outputs.ISSUE_NUMBER }}
           echo "Issue Number: $issue_number"
+
       - name: Check changes to issue body
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PREVIOUS_ISSUE_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
+          PREVIOUS_ISSUE_BODY=$(cat previous_issue_body.txt)
           CURRENT_ISSUE_BODY=$(gh issue view $issue_number --json body --jq '.body')
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
-            echo "Issue body has changed, updating PR..." 
-            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY" 
+            echo "Issue body has changed, updating PR..."
+            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"
+            echo "$CURRENT_ISSUE_BODY" > previous_issue_body.txt
           fi
