@@ -3,10 +3,6 @@ name: Create Issue from Pull Request
 on:
   pull_request:
     types: [opened]
-  issues:
-    types: [opened, edited, reopened]
-  issue_comment:
-    types: [created, edited]
 
 jobs:
   create_issue:
