@@ -12,6 +12,8 @@ jobs:
   create_issue:
     if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
     runs-on: ubuntu-latest
+    outputs:
+      issue_number: ${{ steps.extract_issue_number.outputs.ISSUE_NUMBER }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -32,6 +34,7 @@ jobs:
         run: |
           ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
           echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
+          echo "::set-output name=ISSUE_NUMBER::$ISSUE_NUMBER"
 
       - name: Extract issue body
         env:
@@ -62,7 +65,7 @@ jobs:
 
       - name: Extract Issue number
         run: |
-          issue_number=${{ needs.create_issue.outputs.extract_issue_number.outputs.ISSUE_NUMBER }}
+          issue_number=${{ needs.create_issue.outputs.issue_number }}
           echo "Issue Number: $issue_number"
 
       - name: Check changes to issue body
