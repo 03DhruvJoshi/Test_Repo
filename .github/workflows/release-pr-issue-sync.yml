@@ -54,7 +54,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PREVIOUS_ISSUE_BODY=$(echo ${{ github.event.pull_request.number }} | grep -oE '#[0-9]+' | grep -oE '[0-9]+')
+          PREVIOUS_ISSUE_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
           CURRENT_ISSUE_BODY=$(gh issue view ${{ env.ISSUE_NUMBER }} --json body --jq '.body')
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
             echo "Issue body has changed, updating PR..." 
