@@ -4,9 +4,9 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
   issues:
-    types: [edited]
+    types: [edited, reopened]
   issue_comment:
-    types: [edited]
+    types: [created, edited, deleted]
 
 jobs:
   create_issue:
@@ -63,12 +63,18 @@ jobs:
           echo "::set-output name=PR_BODY::$PR_BODY"
 
   sync_issue_body:
-    if: github.event.action == 'edited'
+    if: >
+      (github.event_name == 'issues' && github.event.action == 'edited') ||
+      (github.event_name == 'issue_comment' && github.event.action == 'edited') ||
+      needs.create_issue.result == 'success'
     runs-on: ubuntu-latest
     needs: create_issue
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
+
+      - name: Debug Event Payload
+        run: echo "${{ toJson(github.event) }}"
 
       - name: Extract Issue number
         run: |
