@@ -9,6 +9,8 @@ on:
       [opened, edited, deleted, closed, reopened, labeled, unlabeled, assigned]
   issue_comment:
     types: [created, edited, deleted]
+  schedule:
+    - cron: "1 * * * *" # Runs every minute
 
 jobs:
   create_issue:
@@ -42,7 +44,7 @@ jobs:
       - name: Compare issue body
         id: compare_issue_body
         run: |
-          PREVIOUS_ISSUE_BODY=$(cat .github/previous_issue_body.txt || echo "")
+          PREVIOUS_ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
           if [ "$ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
             echo "Issue body has changed"
             echo "UPDATE_PR_BODY=true" >> $GITHUB_ENV
