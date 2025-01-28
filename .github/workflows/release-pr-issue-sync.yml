@@ -15,8 +15,6 @@ on:
       - assigned
   issue_comment:
     types: [created, edited, deleted]
-  schedule:
-    - cron: "1 * * * *"
 
 jobs:
   create_issue:
@@ -52,6 +50,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n${{ env.ISSUE_BODY }}"
+
+  sync_issue_body:
+    if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
+    runs-on: ubuntu-latest
+    steps:
       - name: Check changes to issue body
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
