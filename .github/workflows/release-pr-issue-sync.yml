@@ -4,9 +4,9 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
   issues:
-    types: [edited, reopened]
+    types: [edited]
   issue_comment:
-    types: [created, edited, deleted]
+    types: [created, edited]
 
 jobs:
   create_issue:
@@ -63,10 +63,7 @@ jobs:
           echo "::set-output name=PR_BODY::$PR_BODY"
 
   sync_issue_body:
-    if: >
-      (github.event_name == 'issues' && github.event.action == 'edited') ||
-      (github.event_name == 'issue_comment' && github.event.action == 'edited') ||
-      needs.create_issue.result == 'success'
+    if: github.event_name == 'issues' || github.event_name == 'issue_comment'
     runs-on: ubuntu-latest
     needs: create_issue
     steps:
