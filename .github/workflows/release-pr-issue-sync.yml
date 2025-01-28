@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Extract Issue number
         run: |
-          issue_number=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
+          issue_number=${{ github.event.issue.number }}
           echo "Issue Number: $issue_number"
       - name: Check changes to issue body
         env:
