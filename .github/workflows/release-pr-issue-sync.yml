@@ -18,26 +18,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
-
       - name: Create issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_URL=$(gh issue create \  
-            --title "Release-please issue for Pull Request #${{ github.event.pull_request.number }}" \  
-            --body "Release v.1.15.0")  
+          ISSUE_URL=$(gh issue create \
+            --title "Release-please issue for Pull Request #${{ github.event.pull_request.number }}" \
+            --body "Release v.1.15.0")
           echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
-
-      - name: Extract issue number and body
+      - name: Extract issue number
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: extract_issue_number_and_body
         run: |
-          ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')  
-          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')  
-          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV  
+          ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
-
       - name: Link issue to a release PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
