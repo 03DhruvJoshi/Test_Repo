@@ -50,13 +50,17 @@ jobs:
     if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
     runs-on: ubuntu-latest
     steps:
+      - name: Extract Issue number
+        run: |
+          issue_number=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
+          echo "Issue Number: $issue_number"
       - name: Check changes to issue body
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PREVIOUS_ISSUE_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
-          CURRENT_ISSUE_BODY=$(gh issue view ${{ env.ISSUE_NUMBER }} --json body --jq '.body')
+          CURRENT_ISSUE_BODY=$(gh issue view $issue_number --json body --jq '.body')
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
             echo "Issue body has changed, updating PR..." 
-            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n$CURRENT_ISSUE_BODY" 
+            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY" 
           fi
