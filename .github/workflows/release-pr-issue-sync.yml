@@ -90,4 +90,4 @@ jobs:
             gh pr edit ${{ github.event.pull_requests.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"  
           else  
             echo "Issue body has not changed, no action required."  
-          fi  
+          fi
