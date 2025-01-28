@@ -77,6 +77,8 @@ jobs:
           echo "Issue Number: $issue_number"
 
       - name: Extract Issue Body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           issue_number=$(gh issue view ${{ needs.create_issue.outputs.issue_number }} --json body --jq '.body')
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
