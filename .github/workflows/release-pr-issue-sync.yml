@@ -43,6 +43,8 @@ jobs:
           gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n${{ env.ISSUE_BODY }}"
       - name: Compare issue body
         id: compare_issue_body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PREVIOUS_ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
           if [ "$ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
