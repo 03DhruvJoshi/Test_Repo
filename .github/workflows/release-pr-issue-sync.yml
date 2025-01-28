@@ -2,14 +2,21 @@ name: Create Issue from Pull Request
 
 on:
   pull_request:
-    types: [opened, edited, reopened, synchronize]
+    types: [opened, edited, reopened]
   issues:
     types:
-      [opened, edited, deleted, closed, reopened, labeled, unlabeled, assigned]
+      - opened
+      - edited
+      - deleted
+      - closed
+      - reopened
+      - labeled
+      - unlabeled
+      - assigned
   issue_comment:
     types: [created, edited, deleted]
   schedule:
-    - cron: "*/1 * * * *" # Every 1 minutes
+    - cron: "1 * * * *"
 
 jobs:
   create_issue:
@@ -35,31 +42,26 @@ jobs:
           ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
           echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
+      - name: Store issue body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "${{ env.ISSUE_BODY }}" > previous_issue_body.txt
       - name: Link issue to a release PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n${{ env.ISSUE_BODY }}"
-
-  sync_issue_body_with_pr:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4.2.2
-
-      - name: Check and sync issue body with PR
+      - name: Check changes to issue body
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUMBER=${{ env.ISSUE_NUMBER }}  
-          CURRENT_ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')  
-            
-          # Store previous issue body if exists  
-          if [ -f previous_issue_body.txt ]; then  
-            PREVIOUS_ISSUE_BODY=$(cat previous_issue_body.txt)  
-          fi  
-
-          # Check if the issue body has changed  
-          if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then  
-            echo "Issue body has changed, updating PR..."  
-            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n$CURRENT_ISSUE_BODY"
+          ISSUE_NUMBER=${{ env.ISSUE_NUMBER }}
+          CURRENT_ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
+          if [ -f previous_issue_body.txt ]; then
+            PREVIOUS_ISSUE_BODY=$(cat previous_issue_body.txt)
+          fi
+          if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
+            echo "Issue body has changed, updating PR..." 
+            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n$CURRENT_ISSUE_BODY" 
+          fi
