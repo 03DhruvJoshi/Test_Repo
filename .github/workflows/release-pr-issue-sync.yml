@@ -1,4 +1,4 @@
-name: Release PR Issue Sync
+name: Create Issue from Pull Request
 
 on:
   pull_request:
@@ -7,8 +7,6 @@ on:
     types: [opened, edited, reopened]
   issue_comment:
     types: [created, edited]
-  schedule:
-    - cron: "*/1 * * * *"
 
 jobs:
   create_issue:
@@ -66,7 +64,7 @@ jobs:
 
   sync_issue_body:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'schedule' || github.event.workflow_run.conclusion == 'success' }}
+    if: github.event_name == 'issue_comment' || github.event_name == 'issues' && github.event.action == 'edited'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
