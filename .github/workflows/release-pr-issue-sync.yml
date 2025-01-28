@@ -3,6 +3,12 @@ name: Create Issue from Pull Request
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
+  workflow_dispatch: # Allows manual triggering of the workflow
+  issues:
+    types:
+      [opened, edited, deleted, closed, reopened, labeled, unlabeled, assigned]
+  issue_comment:
+    types: [created, edited, deleted]
 
 jobs:
   create_issue:
@@ -16,19 +22,35 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ISSUE_URL=$(gh issue create \
-            --title "Release-please issue for Pull Request # ${{ github.event.pull_request.number }}" \
-            --body "AB#1787181")
+            --title "Release-please issue for Pull Request #${{ github.event.pull_request.number }}" \
+            --body "Release v.1.15.0")
           echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
       - name: Extract issue number
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: extract_issue_number
+        id: extract_issue_number_and_body
         run: |
           ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')  
+          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
           echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
       - name: Link issue to a release PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ env.ISSUE_NUMBER }}\n${{ env.ISSUE_BODY }}"
+      - name: Compare issue body
+        id: compare_issue_body
+        run: |
+          PREVIOUS_ISSUE_BODY=$(cat .github/previous_issue_body.txt || echo "")
+          if [ "$ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
+            echo "Issue body has changed"
+            echo "UPDATE_PR_BODY=true" >> $GITHUB_ENV
+          else
+            echo "Issue body has not changed"
+            echo "UPDATE_PR_BODY=false" >> $GITHUB_ENV
+      - name: Update PR body
+        if: env.UPDATE_PR_BODY == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
