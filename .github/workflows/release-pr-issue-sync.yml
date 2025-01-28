@@ -65,31 +65,25 @@ jobs:
   sync_issue_body:
     runs-on: ubuntu-latest
     if: github.event_name == 'issue_comment' || github.event_name == 'issues' && github.event.action == 'edited'
+    needs: create_issue
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
       - name: Extract Issue number
         run: |
-          issue_number=${{ github.event.workflow_run.outputs.issue_number }}
+          issue_number=${{ needs.create_issue.outputs.issue_number }}
           echo "Issue Number: $issue_number"
-
-      - name: Extract Issue body
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE_BODY=$(gh issue view $issue_number --json body --jq '.body')
-          echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
 
       - name: Check changes to issue body
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PREVIOUS_ISSUE_BODY="${{ github.event.workflow_run.outputs.pr_body }}"
-          CURRENT_ISSUE_BODY="$ISSUE_BODY"
+          PREVIOUS_ISSUE_BODY="${{ needs.create_issue.outputs.pr_body }}"
+          CURRENT_ISSUE_BODY="$(gh issue view ${{ needs.create_issue.outputs.issue_number }} --json body --jq '.body')"
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
             echo "Issue body has changed, updating PR..."
-            gh pr edit ${{ github.event.workflow_run.pull_requests[0].number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"
+            gh pr edit ${{ github.event.pull_requests.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"
           else 
             echo "Issue body has not changed, no action required."
           fi
