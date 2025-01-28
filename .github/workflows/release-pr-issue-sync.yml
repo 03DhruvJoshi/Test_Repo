@@ -89,7 +89,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PREVIOUS_ISSUE_BODY="${{ needs.create_issue.outputs.pr_body }}"  
-          CURRENT_ISSUE_BODY="$ISSUE_BODY"
+          CURRENT_ISSUE_BODY="${{ env.ISSUE_BODY }}"
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then  
             echo "Issue body has changed, updating PR..."  
             gh pr edit ${{ github.event.pull_requests.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"  
