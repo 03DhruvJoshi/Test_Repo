@@ -15,6 +15,7 @@ jobs:
     outputs:
       issue_number: ${{ steps.extract_issue_number.outputs.ISSUE_NUMBER }}
       issue_body: ${{ steps.extract_issue_body.outputs.ISSUE_BODY }}
+      pr_body: ${{ steps.extract_pr_body.outputs.PR_BODY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -46,17 +47,20 @@ jobs:
           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
           echo "::set-output name=ISSUE_BODY::$ISSUE_BODY"
 
-      - name: Store issue body
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${{ env.ISSUE_BODY }}" > previous_issue_body.txt
-
       - name: Link issue to a release PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr edit ${{ github.event.pull_request.number }} --body "${{ env.ISSUE_BODY }}"
+
+      - name: Extract pr body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: extract_pr_body
+        run: |
+          PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
+          echo "PR_BODY=$PR_BODY" >> $GITHUB_ENV
+          echo "::set-output name=PR_BODY::$PR_BODY"
 
   sync_issue_body:
     if: startsWith(github.head_ref, 'release-please--branches--main--components--root')
@@ -76,8 +80,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PREVIOUS_ISSUE_BODY=${{ needs.create_issue.outputs.issue_body }}
-          CURRENT_ISSUE_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
-          echo "CURRENT_ISSUE_BODY=$CURRENT_ISSUE_BODY" >> $GITHUB_ENV
+          CURRENT_ISSUE_BODY=${{ needs.create_issue.outputs.pr_body }}
           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
             echo "Issue body has changed, updating PR..."
             gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #${{ needs.create_issue.outputs.issue_number }}\n$CURRENT_ISSUE_BODY"
