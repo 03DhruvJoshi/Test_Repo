@@ -63,7 +63,6 @@ jobs:
           echo "::set-output name=PR_BODY::$PR_BODY"
 
   sync_issue_body:
-    if: github.event_name == 'issues' || github.event_name == 'issue_comment'
     runs-on: ubuntu-latest
     needs: create_issue
     steps:
