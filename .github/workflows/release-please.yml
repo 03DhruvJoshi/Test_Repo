@@ -16,7 +16,8 @@ jobs:
       - uses: tibdex/github-app-token@v1
         id: generate-token
         with:
-          token: ${{ secrets.TOKEN }}
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
 
       - uses: googleapis/release-please-action@v4
         with:
