@@ -1,0 +1,39 @@
+name: Sync Issue to PR
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Sync issue body to PR body
+        if: github.event_name == 'issues'
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq .body)
+          PR_NUMBER=$(gh pr list --json number --jq '.[] | select(.body | contains("Closes #$ISSUE_NUMBER")) | .number')
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit $PR_NUMBER --body "$ISSUE_BODY"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync PR body to issue body
+        if: github.event_name == 'pull_request'
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_BODY=$(gh pr view $PR_NUMBER --json body --jq .body)
+          ISSUE_NUMBER=$(echo "$PR_BODY" | grep -oP '(?<=Closes #)\d+')
+          if [ -n "$ISSUE_NUMBER" ]; then
+            gh issue edit $ISSUE_NUMBER --body "$PR_BODY"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
