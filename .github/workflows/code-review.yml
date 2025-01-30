@@ -18,7 +18,7 @@ jobs:
       GITHUB_SHA: ${{ github.sha }}
       AZURE_OPENAI_API_INSTANCE_NAME: "azo-ai-gpt"
       AZURE_OPENAI_API_DEPLOYMENT_NAME: "gpt-40"
-      AZURE_OPENAI_API_KEY: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
       AZURE_OPENAI_API_VERSION: "2024-10-01-preview"
 
     steps:
