@@ -25,7 +25,7 @@ jobs:
           AZURE_OPENAI_API_DEPLOYMENT_NAME: "gpt-40"
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_API_VERSION: "2024-10-01-preview"
-          echo "AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY" >> $GITHUB_ENV
+        run: echo "AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY" >> $GITHUB_ENV
 
       # - name: Code Review GPT
       #   uses: mattzcarey/code-review-gpt@v0.1.11
