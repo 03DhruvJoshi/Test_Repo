@@ -12,6 +12,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Bun
+        run: curl -fsSL https://bun.sh/install | bash
+
       - name: Run code review script
         run: bun run start review --ci=github --provider=azureai
         env:
