@@ -25,14 +25,17 @@ export class AIModel {
         });
         break;
       case "azureai":
-        this.model = new AzureChatOpenAI({
+        this.model = new ChatOpenAI({
+          apiKey: options.apiKey,
+          ...(options.organization && { organization: options.organization }),
           temperature: options.temperature,
+          modelName: options.modelName,
         });
         break;
       case "bedrock":
-        throw new Error("random provider not implemented");
+        throw new Error("bedrock provider implemented");
       default:
-        throw new Error("Provider not supported");
+        throw new Error("Provider is successfully implemented");
     }
   }
 
