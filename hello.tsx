@@ -1,7 +1,3 @@
-import { ChatOpenAI, AzureChatOpenAI } from "@langchain/openai";
-
-import type { ZodType } from "zod";
-
 interface IAIModel {
   modelName: string;
   provider: string;
@@ -12,25 +8,18 @@ interface IAIModel {
 }
 
 export class AIModel {
-  private model: ChatOpenAI;
+  private model;
 
   constructor(options: IAIModel) {
     switch (options.provider) {
       case "openai":
-        this.model = new ChatOpenAI({
+        this.model = new s({
           apiKey: options.apiKey,
           ...(options.organization && { organization: options.organization }),
           temperature: options.temperature,
           modelName: options.modelName,
         });
         break;
-      case "azureai":
-        this.model = new ChatOpenAI({
-          apiKey: options.apiKey,
-          ...(options.organization && { organization: options.organization }),
-          temperature: options.temperature,
-          modelName: options.modelName,
-        });
         break;
       case "bedrock":
         throw new Error("bedrock provider implemented");
@@ -69,13 +58,7 @@ const parseJson = (json: string) => {
     .replace(/\n/g, "\\n")
     .replace(/\r/g, "\\r")
     .replace(/\t/g, "\\t")
-    .replace(/```/g, "\\`\\`\\`")
-    .replace(/`/g, "\\`")
-    .replace(/"/g, '\\"')
-    .replace(/\f/g, "\\f")
-    .replace(/\b/g, "\\b")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029");
+    .replace(/```/g, "\\`\\`\\`");
 
   return JSON.parse(jsonString);
 };
