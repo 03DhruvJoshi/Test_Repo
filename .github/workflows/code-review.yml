@@ -12,7 +12,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2.0.1
+        with:
+          bun-version: latest
+
+      - run: bun install
 
       - name: Run code review script
         run: bun run start review --ci=github --provider=azureai
