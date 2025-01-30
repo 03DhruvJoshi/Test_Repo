@@ -12,9 +12,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Install Bun
-      #   run: curl -fsSL https://bun.sh/install | bash
-
       - name: Run code review script
         run: bun run start review --ci=github --provider=azureai
         env:
@@ -25,7 +22,6 @@ jobs:
           AZURE_OPENAI_API_DEPLOYMENT_NAME: "gpt-40"
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_API_VERSION: "2024-10-01-preview"
-        run: echo "AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY" >> $GITHUB_ENV
 
       # - name: Code Review GPT
       #   uses: mattzcarey/code-review-gpt@v0.1.11
@@ -34,3 +30,5 @@ jobs:
       #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       #     MODEL: "gpt-4o"
       #     REVIEW_LANGUAGE: "English"
+      # - name: Install Bun
+      #   run: curl -fsSL https://bun.sh/install | bash
