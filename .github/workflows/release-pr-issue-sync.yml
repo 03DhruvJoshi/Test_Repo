@@ -1,99 +1,99 @@
-name: Create Issue from Pull Request
+# name: Create Issue from Pull Request
 
-on:
-  pull_request:
-    types: [opened, edited, synchronize, reopened]
-  issues:
-    types: [edited]
-  issue_comment:
-    types: [created, edited]
+# on:
+#   pull_request:
+#     types: [cl]
+#   issues:
+#     types: [edited]
+#   issue_comment:
+#     types: [created, edited]
 
-jobs:
-  create_issue:
-    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'release-please--branches--main--components--root')
-    runs-on: ubuntu-latest
-    outputs:
-      issue_number: ${{ steps.extract_issue_number.outputs.ISSUE_NUMBER }}
-      issue_body: ${{ steps.extract_issue_body.outputs.ISSUE_BODY }}
-      pr_body: ${{ steps.extract_pr_body.outputs.PR_BODY }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4.2.2
+# jobs:
+#   create_issue:
+#     if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'release-please--branches--main--components--root')
+#     runs-on: ubuntu-latest
+#     outputs:
+#       issue_number: ${{ steps.extract_issue_number.outputs.ISSUE_NUMBER }}
+#       issue_body: ${{ steps.extract_issue_body.outputs.ISSUE_BODY }}
+#       pr_body: ${{ steps.extract_pr_body.outputs.PR_BODY }}
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4.2.2
 
-      - name: Create issue
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE_URL=$(gh issue create \
-            --title "Release-please issue for Pull Request #${{ github.event.pull_request.number }}" \
-            --body "Release v.1.15.0")
-          echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
+#       - name: Create issue
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           ISSUE_URL=$(gh issue create \
+#             --title "Release-please issue for Pull Request #${{ github.event.pull_request.number }}" \
+#             --body "Release v.1.15.0")
+#           echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_ENV
 
-      - name: Extract issue number
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: extract_issue_number
-        run: |
-          ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=ISSUE_NUMBER::$ISSUE_NUMBER"
+#       - name: Extract issue number
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         id: extract_issue_number
+#         run: |
+#           ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+#           echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
+#           echo "::set-output name=ISSUE_NUMBER::$ISSUE_NUMBER"
 
-      - name: Extract issue body
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: extract_issue_body
-        run: |
-          ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
-          echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
-          echo "::set-output name=ISSUE_BODY::$ISSUE_BODY"
+#       - name: Extract issue body
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         id: extract_issue_body
+#         run: |
+#           ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
+#           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
+#           echo "::set-output name=ISSUE_BODY::$ISSUE_BODY"
 
-      - name: Link issue to a release PR
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr edit ${{ github.event.pull_request.number }} --body "${{ env.ISSUE_BODY }}"
+#       - name: Link issue to a release PR
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           gh pr edit ${{ github.event.pull_request.number }} --body "${{ env.ISSUE_BODY }}"
 
-      - name: Extract pr body
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: extract_pr_body
-        run: |
-          PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
-          echo "PR_BODY=$PR_BODY" >> $GITHUB_ENV
-          echo "::set-output name=PR_BODY::$PR_BODY"
+#       - name: Extract pr body
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         id: extract_pr_body
+#         run: |
+#           PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')
+#           echo "PR_BODY=$PR_BODY" >> $GITHUB_ENV
+#           echo "::set-output name=PR_BODY::$PR_BODY"
 
-  sync_issue_body:
-    runs-on: ubuntu-latest
-    needs: create_issue
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4.2.2
+#   sync_issue_body:
+#     runs-on: ubuntu-latest
+#     needs: create_issue
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4.2.2
 
-      - name: Debug Event Payload
-        run: echo "${{ toJson(github.event) }}"
+#       - name: Debug Event Payload
+#         run: echo "${{ toJson(github.event) }}"
 
-      - name: Extract Issue number
-        run: |
-          issue_number=${{ needs.create_issue.outputs.issue_number }}  
-          echo "Issue Number: $issue_number"
+#       - name: Extract Issue number
+#         run: |
+#           issue_number=${{ needs.create_issue.outputs.issue_number }}
+#           echo "Issue Number: $issue_number"
 
-      - name: Extract Issue Body
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE_BODY=$(gh issue view ${{ needs.create_issue.outputs.issue_number }} --json body --jq '.body')
-          echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
-          echo "::set-output name=ISSUE_BODY::$ISSUE_BODY"
+#       - name: Extract Issue Body
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           ISSUE_BODY=$(gh issue view ${{ needs.create_issue.outputs.issue_number }} --json body --jq '.body')
+#           echo "ISSUE_BODY=$ISSUE_BODY" >> $GITHUB_ENV
+#           echo "::set-output name=ISSUE_BODY::$ISSUE_BODY"
 
-      - name: Check changes to issue body
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PREVIOUS_ISSUE_BODY="${{ needs.create_issue.outputs.pr_body }}"  
-          CURRENT_ISSUE_BODY="${{ env.ISSUE_BODY }}"
-          if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then  
-            echo "Issue body has changed, updating PR..."  
-            gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"  
-          else  
-            echo "Issue body has not changed, no action required."  
-          fi
+#       - name: Check changes to issue body
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           PREVIOUS_ISSUE_BODY="${{ needs.create_issue.outputs.pr_body }}"
+#           CURRENT_ISSUE_BODY="${{ env.ISSUE_BODY }}"
+#           if [ "$CURRENT_ISSUE_BODY" != "$PREVIOUS_ISSUE_BODY" ]; then
+#             echo "Issue body has changed, updating PR..."
+#             gh pr edit ${{ github.event.pull_request.number }} --body "Fixes: #$issue_number\n$CURRENT_ISSUE_BODY"
+#           else
+#             echo "Issue body has not changed, no action required."
+#           fi
