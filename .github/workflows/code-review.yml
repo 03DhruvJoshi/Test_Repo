@@ -3,6 +3,7 @@ name: Code Review GPT CI
 on:
   pull_request:
     branches: [main]
+    types: [labeled]
 
 permissions:
   pull-requests: write
@@ -12,7 +13,7 @@ permissions:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-
+    if: github.event.label.name == 'AI-Code-Review'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,10 +24,10 @@ jobs:
           bun-version: latest
 
       - name: Install code-review-gpt
-        run: bun i code-review-gpt
+        run: npm install code-review-gpt
 
       - name: Run code review script
-        run: bun code-review-gpt review --ci=github --provider=azureai
+        run: npx code-review-gpt review --ci=github --provider=azureai
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
