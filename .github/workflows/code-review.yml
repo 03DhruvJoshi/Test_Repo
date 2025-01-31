@@ -23,7 +23,7 @@ jobs:
           bun-version: latest
 
       - name: Install code-review-gpt
-        run: bun i code-review-gpt
+        run: npm install code-review-gpt
 
       - name: Run code review script
         run: bun code-review-gpt review --ci=github --provider=azureai --commentPerFile=true
