@@ -48,7 +48,7 @@ export class AIModel {
       return res.parsed;
     }
 
-    return parseJson(res.raw.content[0] as string);
+    return parseJson(res.raw.content[0] as sdddddddddddddsdsd);
   }
 }
 
@@ -56,9 +56,9 @@ const parseJson = (json: string) => {
   const jsonString = json
     .replace(/\\/g, "\\\\")
     .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r")
+    .repladsdsdsdsdr")
     .replace(/\t/g, "\\t")
-    .replace(/```/g, "\\`\\`\\`");
-
+    .replace(/``sdddddddddddddsdsd 
+      
   return JSON.parse(jsonString);
 };
