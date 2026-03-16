@@ -1,0 +1,10 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "echo 'Run Next.js here'"
+  },
+  "dependencies": {
+    "ui": "workspace:*"
+  }
+}
